@@ -1,4 +1,4 @@
-# JidoGPT - Auto Prompt ChatGPT Extension
+# JidoGPT - auto prompt ChatGPT extension
 
 ## Features
 - Automatically sends a customizable message repeatedly to ChatGPT.
