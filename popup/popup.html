@@ -7,7 +7,14 @@
 <body>
   <h2>JidoGPT</h2>
   <div class="container">
-    <textarea class="glass-panel" id="message" placeholder="Enter your message"></textarea>
+    <textarea style="resize: none;" class="glass-panel" id="message" placeholder="Optional instructions for all prompts"></textarea>
+    <textarea class="glass-panel" id="content" placeholder="Enter your message content to break down"></textarea>
+    <div style="margin-bottom: 10px;">
+      <b><label for="chunkCount">
+        Elements per prompt :
+      </label></b>
+      <input class="glass-panel"  min="1" id="chunkCount"/>
+    </div>
     <button class="glass-button" id="toggle">Start</button>
   </div>
   <p id="status"><b>Status:</b> Stopped</p>

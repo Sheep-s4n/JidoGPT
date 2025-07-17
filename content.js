@@ -1,10 +1,10 @@
 let autoPromptInterval = null;
 const promptInterval = 500
+const separator = ","
 
 
 window.addEventListener('message', (event) => {
   if (event.data.type === 'TOGGLE_AUTOPROMPT') {
-    console.log("triggered !")
     if (event.data.enabled) {
       startAutoPrompt();
     } else {
@@ -13,18 +13,24 @@ window.addEventListener('message', (event) => {
   }
 });
 
+
+
 function startAutoPrompt() {
   if (autoPromptInterval) return;
 
-  chrome.storage.local.get(['autoPromptMessage'], (data) => {
-    const message = data.autoPromptMessage || 'Pick up where you left off.';
+  chrome.storage.local.get(["autoPromptMessage", "content_to_break_down", "item_by_breakdown"], (data) => {
+    const message = data.autoPromptMessage || "";
+    const item_by_breakdown = data.item_by_breakdown || 10;
+    const content_to_break_down = (data.content_to_break_down || "").split(separator) || '';
+    const generator = chunkGenerator(content_to_break_down, item_by_breakdown)    
     const editableDiv = document.querySelector('#prompt-textarea');
-
+    
     autoPromptInterval = setInterval(() => {
-      if (!editableDiv) return;
+      if (document.querySelector('[data-testid="stop-button"]') || !editableDiv) return;
+      item = generator.next()
 
       editableDiv.focus();
-      editableDiv.innerText = message;
+      editableDiv.innerText = `${message} ${item.value}`;
       editableDiv.dispatchEvent(new InputEvent('input', { bubbles: true }));
 
       editableDiv.dispatchEvent(new KeyboardEvent('keydown', {
@@ -35,7 +41,9 @@ function startAutoPrompt() {
         keyCode: 13,
         which: 13,
       }));
-    }, promptInterval);
+
+      if (item.done) stopAutoPrompt();
+    }, promptInterval); 
   });
 }
 
@@ -43,4 +51,10 @@ function stopAutoPrompt() {
     document.querySelector('#prompt-textarea').innerText = ""
     clearInterval(autoPromptInterval);
     autoPromptInterval = null;
+}
+
+function* chunkGenerator(items, x) {
+  for (let i = 0; i < items.length; i += x) {
+    yield items.slice(i, i + x);
+  }
 }
