@@ -14,7 +14,6 @@ window.addEventListener('message', (event) => {
 });
 
 
-
 function startAutoPrompt() {
   if (autoPromptInterval) return;
 
@@ -33,14 +32,20 @@ function startAutoPrompt() {
       editableDiv.innerText = `${message} ${item.value}`;
       editableDiv.dispatchEvent(new InputEvent('input', { bubbles: true }));
 
-      editableDiv.dispatchEvent(new KeyboardEvent('keydown', {
-        bubbles: true,
-        cancelable: true,
-        key: 'Enter',
-        code: 'Enter',
-        keyCode: 13,
-        which: 13,
-      }));
+      const submitBtn = document.querySelector("#composer-submit-button");
+      if (submitBtn) {
+        submitBtn.click();
+      } else {
+        editableDiv.dispatchEvent(new KeyboardEvent('keydown', {
+          bubbles: true,
+          cancelable: true,
+          key: 'Enter',
+          code: 'Enter',
+          keyCode: 13,
+          which: 13,
+        }));
+  
+      }
 
       if (item.done) stopAutoPrompt();
     }, promptInterval); 
@@ -51,6 +56,7 @@ function stopAutoPrompt() {
     document.querySelector('#prompt-textarea').innerText = ""
     clearInterval(autoPromptInterval);
     autoPromptInterval = null;
+    chrome.storage.local.set({ autoPromptEnabled: false });
 }
 
 function* chunkGenerator(items, x) {
